@@ -1,5 +1,6 @@
 pragma solidity ^0.5.11;
 
+// Defines an ERC20 standard to be able to transfer to
 contract IERC20 {
   uint256 public totalSupply;
   function balanceOf(address _owner) public view returns (uint256 balance);
@@ -11,6 +12,7 @@ contract IERC20 {
   event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 }
 
+// A library to ensure operations are correct
 library SafeMath {  
   function mul(uint256 a, uint256 b) internal pure returns (uint256){
     uint256 c = a * b;
@@ -37,15 +39,9 @@ library SafeMath {
   }  
 }
 
-library SafeERC20 {
-    using SafeMath for uint256;
-
-    function safeTransfer(IERC20 token, address to, uint256 value) internal {
-        require(token.transfer(to, value), "Token transfer failed");
-    }  
-}
-
-contract Converter {
+// String utilities
+contract StringUtil {
+    // Concat string - so we can build up json
     function strConcat(string memory _a, string memory _b, string memory _c, string memory _d, string memory _e) internal pure returns (string memory){
         bytes memory _ba = bytes(_a);
         bytes memory _bb = bytes(_b);
@@ -63,18 +59,22 @@ contract Converter {
         return string(babcde);
     }
    
+    // Overload with 4 params
     function strConcat(string memory _a, string memory _b, string memory _c, string memory _d) internal pure returns (string memory) {
         return strConcat(_a, _b, _c, _d, "");
     }
    
+    // Overload with 3 params
     function strConcat(string memory _a, string memory _b, string memory _c) internal pure returns (string memory) {
         return strConcat(_a, _b, _c, "", "");
     }
-   
+    
+    // Overload with 2 params
     function strConcat(string memory _a, string memory _b) internal pure returns (string memory) {
         return strConcat(_a, _b, "", "", "");
     }
    
+    // Turns address to ascii string for outputting as json
     function toAsciiString(address x) internal pure returns (string memory) {
         bytes memory s = new bytes(40);
         for (uint i = 0; i < 20; i++) {
@@ -87,11 +87,13 @@ contract Converter {
         return string(s);
     }
    
+    // Converts byte to char - used in getting string from address
     function char(byte b) internal pure returns (byte c) {
         if (uint8(b) < 10) return byte(uint8(b) + 0x30);
         else return byte(uint8(b) + 0x57);
     }
-   
+    
+    // Turns integer to string for outputting as json
     function toString(uint _base)
         internal
         pure
@@ -110,9 +112,11 @@ contract Converter {
     }
 }
 
+// Acts as a locking mechanism for security
 contract ReentrancyGuard {  
    bool private rentrancy_lock = false;
-
+   
+   // Define the nonReentrant lock
    modifier nonReentrant() {
      require(!rentrancy_lock, "Lock not available");
      rentrancy_lock = true;
@@ -121,25 +125,31 @@ contract ReentrancyGuard {
    }
 }
 
+// Allows the contract to be ownable (restricts access for admin)
 contract Ownable {  
   address payable public owner;
+  // Allows for new owner
   address payable public potentialNewOwner;
  
   event OwnershipTransferred(address payable indexed _from, address payable indexed _to);
 
+  // Define the owner as the contract deployer (default)
   constructor() public {
     owner = msg.sender;
   }
-
+  
+  // Define the owner restriction
   modifier onlyOwner() {
     require(msg.sender == owner, "Only owner can use this function");
     _;
   }
 
+  // Can transfer ownership to new address
   function transferOwnership(address payable _newOwner) external onlyOwner {
     potentialNewOwner = _newOwner;
   }
- 
+  
+  // For transfer to be complete, the new owner must call the accept - the new user must have address set as "potentialNewOwner" 
   function acceptOwnership() external {
     require(msg.sender == potentialNewOwner, "You are not the potential new owner");
     emit OwnershipTransferred(owner, potentialNewOwner);
@@ -147,26 +157,30 @@ contract Ownable {
   }
 }
 
+// Adds circuit breaker functionality for if we need to migrate (to get all open trades deleted (refunded) and purchases suspended)
 contract Breaker is Ownable {
     bool public inLockdown;
 
+    // Default not in lockdown
     constructor () internal {
         inLockdown = false;
     }
-
+    
+    // Define the lockdown modifier
     modifier outOfLockdown() {
         require(inLockdown == false);
         _;
     }
    
+    // Allows for admin to update the lockdown state whenever
     function updateLockdownState(bool state) external onlyOwner{
         inLockdown = state;
     }
 }
 
-contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
+// The Morality DEX contract
+contract MoralityDEX is Breaker, ReentrancyGuard, StringUtil {
     using SafeMath for uint256;
-    using SafeERC20 for IERC20;
    
     // The token - the contract can have many
     struct Token {
