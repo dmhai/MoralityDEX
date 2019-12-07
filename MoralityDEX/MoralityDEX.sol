@@ -219,9 +219,9 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
     uint _minimumEthPerTrade = 0;
     
     // Id counter for getting the dynamic arrays
-    uint private tradeLocationIdCount = 0;
+    uint private tradeLocationIdCount = 1;
     // Id counter for the new trades
-    uint private tradeIdCount = 0;
+    uint private tradeIdCount = 1;
 
     // Event fired when a token is added Morality DEX
     event AddedToken(address token, uint256 rate);
@@ -233,7 +233,6 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
     // To create the contract we need an admin address
     constructor (address payable exchangeWallet, uint minimumEthPerTrade) public {
         require(exchangeWallet != address(0), "Cannot use address 0x");
-        require(minimumEthPerTrade > 0, "Minimum eth per trade must be greater than 0");
         _exchangeWallet = exchangeWallet;
         _minimumEthPerTrade = minimumEthPerTrade;
     }
@@ -295,10 +294,9 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
         Token memory token = _tokens[symbol];
         require(token.exists == true, "No matching token was found");
         // Check trade is bigger than our minimum
-        require(getMinimumTradeTokenValue(symbol) >= amount);
+        require(getMinimumTradeTokenValue(symbol) <= amount);
         // Take payment (must be approved first)
-        bool success = IERC20(token.tokenAddress).transferFrom(msg.sender, address(this), amount);
-        require(success == true, "Token transfer to Morality DEX failed");
+        require(IERC20(token.tokenAddress).transferFrom(msg.sender, address(this), amount) == true, "Token transfer to Morality DEX failed");
         // Add new trade
         Trade memory trade = Trade(msg.sender, id = tradeIdCount++, amount, true, 0, symbol, now, true, amount, true, false);
         _openTrades[symbol].push(trade);
@@ -311,7 +309,7 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
     }
    
     // Gets an open trade index for a specified id
-    function getOpenTradeIndexById(string memory symbol, uint id) public view returns(uint){
+    function _getOpenTradeIndexById(string memory symbol, uint id) public view returns(uint){
         for(uint i=0;i<_openTrades[symbol].length;i++){
             // If we match an id - return it (we don't need to continue looping)
             if(_openTrades[symbol][i].id == id){
@@ -325,7 +323,7 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
     // Gets an open trade json string for a specified id
     function getOpenTradeByIdResult(string memory symbol, uint id) public view returns(string memory result){
          result = '{trades:[';
-         uint index = getOpenTradeIndexById(symbol, id);
+         uint index = _getOpenTradeIndexById(symbol, id);
          return strConcat(_buildTrade(symbol, result, index), "]}");
     }
    
@@ -335,7 +333,7 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
         Token memory token = _tokens[symbol];
         require(token.exists == true, "No token matching that symbol exists");
         // Retrieve the trade
-        uint index = getOpenTradeIndexById(symbol, id);
+        uint index = _getOpenTradeIndexById(symbol, id);
         Trade memory trade = _openTrades[symbol][index];
         // Require it is owners trade
         require(trade.id == id, "Open trade does not exist");
@@ -417,6 +415,31 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
         selfdestruct(owner);
     }
     
+        // Takes trades to be used and marks them as being used if the requiredTokenCount can be matched - then returns the ids
+    function _getTradesThatEqualOrAreGreaterThan(string memory symbol, uint requiredTokenCount) internal returns(uint[] memory){
+        uint runningCount = 0;
+        uint id = tradeLocationIdCount++;
+        for(uint256 i=0; i<_openTrades[symbol].length;i++){
+            Trade memory trade = _openTrades[symbol][i];
+            // Check for deleted row (and rows with less than 0)
+            if(trade.valid == true && trade.amountLeftToSell > 0 && trade.isBeingUsed == false){
+                // Take it from general population
+                trade.isBeingUsed = true;
+                _openTrades[symbol][i] = trade;
+                runningCount += trade.amountLeftToSell;
+                // No matter what add the id
+                _tradeLocations[id].push(i);
+                // Check to see if we have reached the value we have come for
+                if(runningCount >= requiredTokenCount){
+                     i = _openTrades[symbol].length;   
+                }
+            }
+        }
+        // If we dont meet the requirements, revert taking the trades & throw
+        require(runningCount >= requiredTokenCount, "Not enough tokens to meet requirement");
+        return _tradeLocations[id];
+    }
+    
     // A helper method to build the json representation of a token
     function _buildTokenResponse(address tokenAddress, uint rate) internal pure returns(string memory response){
         response = strConcat('{"address":"', toAsciiString(tokenAddress) , '","rate":"', toString(rate) , '"}');
@@ -436,7 +459,7 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
         page = strConcat(page, '"id":"', id, '",');
         page = strConcat(page, '"owner":"', owner, '",');
         page = strConcat(page, '"amount":', amount, ',');
-        page = strConcat(page, '"amount":', amountLeftToSell, ',');
+        page = strConcat(page, '"amountLeftToSell":', amountLeftToSell, ',');
         page = strConcat(page, '"symbol":"', trade.symbol, '",');
         page = strConcat(page, '"dateAdded":"', dateAdded, '"},');
         // Return the page
@@ -463,31 +486,6 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
         require(tokensPaid == requiredTokenCount);
         // If we got here, the trade has been completed
         return true;
-    }
-   
-    // Takes trades to be used and marks them as being used if the requiredTokenCount can be matched - then returns the ids
-    function _getTradesThatEqualOrAreGreaterThan(string memory symbol, uint requiredTokenCount) internal returns(uint[] memory){
-        uint runningCount = 0;
-        uint id = tradeLocationIdCount++;
-        for(uint256 i=0; i<_openTrades[symbol].length;i++){
-            Trade memory trade = _openTrades[symbol][i];
-            // Check for deleted row (and rows with less than 0)
-            if(trade.valid == true && trade.amountLeftToSell > 0 && trade.isBeingUsed == false){
-                // Take it from general population
-                trade.isBeingUsed = true;
-                _openTrades[symbol][i] = trade;
-                runningCount += trade.amountLeftToSell;
-                // No matter what add the id
-                _tradeLocations[id].push(i);
-                // Check to see if we have reached the value we have come for
-                if(runningCount >= requiredTokenCount){
-                     i = _openTrades[symbol].length;   
-                }
-            }
-        }
-        // If we dont meet the requirements, revert taking the trades & throw
-        require(runningCount < requiredTokenCount, "Not enough tokens to meet requirement");
-        return _tradeLocations[id];
     }
     
     // Updates the trades state - either removes or puts up the amount not sold back up for purchase
