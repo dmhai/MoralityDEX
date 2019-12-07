@@ -187,10 +187,6 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
         uint256 id;
         // The total amount of tokens sent with the trade
         uint amount;
-        // If we want to use market order or not (limit order otherwise)
-        bool marketOrder;
-        // If limit order, use the relative amount of this asking price (+-10%)
-        uint askingPrice;
         // The tokens symbol (FK) that the trade is for
         string symbol;
         // The date the trade is added
@@ -226,7 +222,7 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
     // Event fired when a token is added Morality DEX
     event AddedToken(address token, uint256 rate);
     // Event fired when trade is added to open trades
-    event AddTrade(address sender, uint256 id, uint256 amount, bool marketOrder, uint256 askingPrice, string symbol, uint256 dateAdded);
+    event AddTrade(address sender, uint256 id, uint256 amount, string symbol, uint256 dateAdded);
     // Event fired when a trade has been part bought
     event PartBuy(address sender, uint amount, uint256 tradeId, string symbol);
 
@@ -298,10 +294,10 @@ contract MoralityDEX is Breaker, ReentrancyGuard, Converter {
         // Take payment (must be approved first)
         require(IERC20(token.tokenAddress).transferFrom(msg.sender, address(this), amount) == true, "Token transfer to Morality DEX failed");
         // Add new trade
-        Trade memory trade = Trade(msg.sender, id = tradeIdCount++, amount, true, 0, symbol, now, true, amount, true, false);
+        Trade memory trade = Trade(msg.sender, id = tradeIdCount++, amount, symbol, now, true, amount, true, false);
         _openTrades[symbol].push(trade);
         // Add the event
-        emit AddTrade(msg.sender, id, amount, true, 0, symbol, now);
+        emit AddTrade(msg.sender, id, amount, symbol, now);
         // Add to total held in contract
         _heldTokens[symbol] += amount;
         // Return the unique id
