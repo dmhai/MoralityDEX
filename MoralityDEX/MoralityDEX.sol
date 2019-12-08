@@ -234,11 +234,13 @@ contract MoralityDEX is Breaker, ReentrancyGuard, StringUtil {
     uint private tradeIdCount = 1;
 
     // Event fired when a token is added Morality DEX
-    event AddedToken(address token, uint256 rate);
+    event AddedToken(string symbol, address token, uint256 rate, uint dateAdded);
     // Event fired when trade is added to open trades
     event AddTrade(address sender, uint256 id, uint256 amount, string symbol, uint256 dateAdded);
-    // Event fired when a trade has been part bought
-    event PartBuy(address sender, uint amount, uint256 tradeId, string symbol);
+    // Event fired what a trade has been made
+    event TradeCompleted(address tokenAddress, address buyerAddress, address sellerAddress, uint amountEth, uint amountTokens, uint dateAdded);
+    // Event fied when trade deleted and user refunded
+    event TradeDeleted(string symbol, address tradeOwner, uint amountReturned, uint dateAdded);
 
     // To create the contract we need an admin address
     constructor (address payable exchangeWallet, uint minimumEthPerTrade) public {
@@ -283,6 +285,8 @@ contract MoralityDEX is Breaker, ReentrancyGuard, StringUtil {
         Token memory token = Token(rate, tokenAddress, now, true);
         // Set in place in map
         _tokens[symbol] = token;
+        // Send out event
+        emit AddedToken(symbol, tokenAddress, rate, now);
     }
 
     // Get the DEXs external wallet
@@ -349,11 +353,12 @@ contract MoralityDEX is Breaker, ReentrancyGuard, StringUtil {
         require(trade.id == id, "Open trade does not exist");
         require(trade.valid == true, "Trade is not valid");
         require(trade.isBeingUsed == true, "Cannot delete, trade is being used");
-        uint amountToSendBack = trade.amountLeftToSell;
         // Delete the trade
         delete _openTrades[symbol][index];
         // Send it back to the owner
-        require(IERC20(token.tokenAddress).transfer(msg.sender, amountToSendBack));
+        require(IERC20(token.tokenAddress).transfer(msg.sender, trade.amountLeftToSell));
+        // Send out delete event
+        emit TradeDeleted(symbol, msg.sender, trade.amountLeftToSell, now);
         return true;
     }
    
@@ -486,7 +491,7 @@ contract MoralityDEX is Breaker, ReentrancyGuard, StringUtil {
             if (tokensPaid.add(trade.amountLeftToSell) > requiredTokenCount)
             { valueToSend = requiredTokenCount.sub(tokensPaid); }
             else { valueToSend = trade.amountLeftToSell; }
-            // Pay towards/ the whole open trade
+            // Pay towards/the whole open trade
             _tradeFunds(tokenAddress, msg.sender, trade.owner, valueToSend, valueToSend.div(tokenRate));
             // Update the trade state (remove or put back up for purchase  - the part left)
             _updateTradeState(symbol, indexs[i], valueToSend, trade.amountLeftToSell);
@@ -514,10 +519,11 @@ contract MoralityDEX is Breaker, ReentrancyGuard, StringUtil {
         else { delete _openTrades[symbol][index]; }
     }
    
-   // This is used to transfer eth to the seller of a token and transfer the purchased tokens to the buyer
+    // This is used to transfer eth to the seller of a token and transfer the purchased tokens to the buyer
     function _tradeFunds(address tokenAddress, address tokenReciever, address payable moneyReciever, uint tokensToSend, uint moneyToSend) internal returns(bool){
         moneyReciever.transfer(moneyToSend);
         require(IERC20(tokenAddress).transfer(tokenReciever, tokensToSend));
+        emit TradeCompleted(tokenAddress, tokenReciever, moneyReciever, moneyToSend, tokensToSend, now);
         return true;
     }
 }
