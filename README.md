@@ -1,4 +1,8 @@
-# MoralityDEX
+<p align="center">
+  <img width="180" height="160" src="https://i.postimg.cc/J0mKhXCD/mo.png">
+</p>
+
+# MoralityDEX :money_with_wings:
 Decentralized exchange for ERC20 tokens on the Ethereum blockchain (ERC20 -> ETH && ERC20 <- ETH)
 
 The project contains:
