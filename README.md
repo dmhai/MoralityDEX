@@ -25,7 +25,7 @@ The Rate Updater Workflow (Cron Job - Hourly/Daily):
 2. Gets rates for all symbols
 3. Updates each symbol on the DEX contract
 
-## Morality Contracts Index :bookmark_tabs:
+## Deployed Contract Details :bookmark_tabs:
 
 Address: 
 Link on Rinkby.Etherscan: https://rinkeby.etherscan.io/address/
