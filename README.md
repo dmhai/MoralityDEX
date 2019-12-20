@@ -27,7 +27,7 @@ The Rate Updater Workflow (Cron Job - Hourly/Daily):
 
 ## Deployed Contract Details :bookmark_tabs:
 
-Address: 0xe8da08Ca7A3BB6c8d0a57286238c1411Fa2F15C2
+**Address:** 0xe8da08Ca7A3BB6c8d0a57286238c1411Fa2F15C2
 **Link on Rinkby.Etherscan:** https://rinkeby.etherscan.io/address/0xe8da08Ca7A3BB6c8d0a57286238c1411Fa2F15C2 <br>
 **Constructor Arguments (decoded):** 0x5c9D8ed10c263F1bB02404145E7cE49CEC0D87F0,100000000000000000 <br>
 **Constructor Arguments (encoded):** 0000000000000000000000005c9d8ed10c263f1bb02404145e7ce49cec0d87f0000000000000000000000000000000000000000000000000016345785d8a0000 <br>
