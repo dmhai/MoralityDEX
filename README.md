@@ -29,3 +29,5 @@ The Rate Updater Workflow (Cron Job - Hourly/Daily):
 
 Address: 
 Link on Rinkby.Etherscan: https://rinkeby.etherscan.io/address/
+**Constructor Arguments (decoded):** 0x5c9D8ed10c263F1bB02404145E7cE49CEC0D87F0,100000000000000000 <br>
+**Constructor Arguments (encoded):** 0000000000000000000000005c9d8ed10c263f1bb02404145e7ce49cec0d87f0000000000000000000000000000000000000000000000000016345785d8a0000 <br>
