@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29424.173
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeRateManager", "ExchangeRateManager\ExchangeRateManager.csproj", "{3F26B9BC-6005-48F1-B9E1-C89463B5258A}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "MoralityDexDb", "MoralityDexDb\MoralityDexDb.sqlproj", "{F8405493-873A-43D1-ACEB-73047613071D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoralityDexModel", "MoralityDexModel\MoralityDexModel.csproj", "{51186745-9610-4158-86D3-B0A673C02E66}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoralityDexRepositories", "MoralityDexRepositories\MoralityDexRepositories.csproj", "{FB5840A9-D88E-43CE-ABD4-E88F2CF2D82C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoralityDexServices", "MoralityDexServices\MoralityDexServices.csproj", "{504F58D4-58F3-424A-8BEF-4EF08645F6BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoralityDexContractRepositories", "MoralityDexContractRepositories\MoralityDexContractRepositories.csproj", "{DFB4B60A-E364-4751-9FE4-5DF12FEFFA20}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3F26B9BC-6005-48F1-B9E1-C89463B5258A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F26B9BC-6005-48F1-B9E1-C89463B5258A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F26B9BC-6005-48F1-B9E1-C89463B5258A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F26B9BC-6005-48F1-B9E1-C89463B5258A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8405493-873A-43D1-ACEB-73047613071D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8405493-873A-43D1-ACEB-73047613071D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8405493-873A-43D1-ACEB-73047613071D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F8405493-873A-43D1-ACEB-73047613071D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8405493-873A-43D1-ACEB-73047613071D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8405493-873A-43D1-ACEB-73047613071D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{51186745-9610-4158-86D3-B0A673C02E66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51186745-9610-4158-86D3-B0A673C02E66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51186745-9610-4158-86D3-B0A673C02E66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51186745-9610-4158-86D3-B0A673C02E66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB5840A9-D88E-43CE-ABD4-E88F2CF2D82C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB5840A9-D88E-43CE-ABD4-E88F2CF2D82C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB5840A9-D88E-43CE-ABD4-E88F2CF2D82C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB5840A9-D88E-43CE-ABD4-E88F2CF2D82C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{504F58D4-58F3-424A-8BEF-4EF08645F6BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{504F58D4-58F3-424A-8BEF-4EF08645F6BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{504F58D4-58F3-424A-8BEF-4EF08645F6BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{504F58D4-58F3-424A-8BEF-4EF08645F6BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFB4B60A-E364-4751-9FE4-5DF12FEFFA20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFB4B60A-E364-4751-9FE4-5DF12FEFFA20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFB4B60A-E364-4751-9FE4-5DF12FEFFA20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFB4B60A-E364-4751-9FE4-5DF12FEFFA20}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D52177AF-F50C-45B6-B9DD-7A5371869CA5}
+	EndGlobalSection
+EndGlobal
